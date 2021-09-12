@@ -47,13 +47,13 @@ class Chain {
             hash.update((nonce + solution).toString()).end();
             const attempt = hash.digest('hex')
             if(attempt.substr(0,4) == '0000'){
-                console.log(`SOlved: ${solution}`)
+                console.log(`Solved: ${solution}`)
                 return solution;
             }
             solution += 1
         }
     }
-    addBlock(transaction: Transaction, senderPublicKey: string, signature: string){
+    addBlock(transaction: Transaction, senderPublicKey: string, signature: Buffer){
         const verifier = crypto.createVerify('SHA256');
         verifier.update(transaction.toString());
         const isValid = verifier.verify(senderPublicKey, signature)

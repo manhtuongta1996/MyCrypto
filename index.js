@@ -1,107 +1,4 @@
 "use strict";
-/**
-import * as crypto from "crypto";
-import { runInThisContext } from "vm";
-
-class Transaction {
-    constructor(
-        public amount: number,
-        public payer: string, //public key
-        public payee: string //public key
-        ){}
-        
-        toString(){
-        return JSON.stringify(this)
-    }
-}
-
-
-class Block {
-    public nonce = Math.round(Math.random() * 999999999)
-    constructor(
-        public prevHash: string,
-        public transaction: Transaction,
-        public ts = Date.now()
-    ){}
-
-    get hash(){
-        const str = JSON.stringify(this);
-        const hash = crypto.createHash("SHA256");
-        hash.update(str).end();
-        return hash.digest("hex")
-    }
-}
-
-class Chain {
-    public static instance = new Chain();
-    chain: Block[];
-    constructor(){
-        this.chain = [new Block("", new Transaction(100, 'genesis', 'satoshi'))]
-    }
-    get lastBlock(){
-        return this.chain[this.chain.length-1]
-    }
-    mine(nonce:number){
-        let solution = 1
-        console.log('mining...')
-        while (true) {
-            const hash = crypto.createHash('MD5');
-            hash.update((nonce + solution).toString()).end();
-            const attempt = hash.digest('hex')
-            if(attempt.substr(0,4) == '0000'){
-                console.log(`SOlved: ${solution}`)
-                return solution;
-            }
-            solution += 1
-        }
-    }
-    addBlock(transaction: Transaction, senderPublicKey: string, signature: string){
-        const verifier = crypto.createVerify('SHA256');
-        verifier.update(transaction.toString());
-        const isValid = verifier.verify(senderPublicKey, signature)
-
-        if (isValid) {
-            const newBlock = new Block(this.lastBlock.hash, transaction);
-            this.mine(newBlock.nonce);
-            this.chain.push(newBlock)
-        }
-    }
-}
-
-class Wallet {
-    public publicKey: string;
-    public privateKey: string;
-
-    constructor(){
-        const keypair = crypto.generateKeyPairSync('rsa', {
-            modulusLength: 2048,
-            publicKeyEncoding: {type:"spki", format:'pem'},
-            privateKeyEncoding: {type: 'pkcs8', format:'pem'}
-
-        });
-        this.privateKey= keypair.privateKey;
-        this.publicKey = keypair.publicKey;
-    }
-    sendMoney(amount: number, payeePublicKey: string){
-        const transaction = new Transaction(amount, this.publicKey, payeePublicKey);
-        const sign = crypto.createSign("SHA256");
-        sign.update(transaction.toString()).end();
-        const signature = sign.sign(this.privateKey)
-    }
-
-}
-
-
-const satoshi = new Wallet();
-const bob = new Wallet();
-const alice = new Wallet();
-//const tony = new Wallet();
-
-satoshi.sendMoney(50, bob.publicKey)
-bob.sendMoney(23, alice.publicKey);
-alice.sendMoney(5, bob.publicKey)
-console.log(Chain.instance)
-*/
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
@@ -123,10 +20,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = __importStar(require("crypto"));
-// Transfer of funds between two wallets
 class Transaction {
-    constructor(amount, payer, // public key
-    payee // public key
+    constructor(amount, payer, //public key
+    payee //public key
     ) {
         this.amount = amount;
         this.payer = payer;
@@ -136,7 +32,6 @@ class Transaction {
         return JSON.stringify(this);
     }
 }
-// Individual block on the chain
 class Block {
     constructor(prevHash, transaction, ts = Date.now()) {
         this.prevHash = prevHash;
@@ -146,43 +41,36 @@ class Block {
     }
     get hash() {
         const str = JSON.stringify(this);
-        const hash = crypto.createHash('SHA256');
+        const hash = crypto.createHash("SHA256");
         hash.update(str).end();
-        return hash.digest('hex');
+        return hash.digest("hex");
     }
 }
-// The blockchain
 class Chain {
     constructor() {
-        this.chain = [
-            // Genesis block
-            new Block('', new Transaction(100, 'genesis', 'satoshi'))
-        ];
+        this.chain = [new Block("", new Transaction(100, 'genesis', 'satoshi'))];
     }
-    // Most recent block
     get lastBlock() {
         return this.chain[this.chain.length - 1];
     }
-    // Proof of work system
     mine(nonce) {
         let solution = 1;
-        console.log('⛏️  mining...');
+        console.log('mining...');
         while (true) {
             const hash = crypto.createHash('MD5');
             hash.update((nonce + solution).toString()).end();
             const attempt = hash.digest('hex');
-            if (attempt.substr(0, 4) === '0000') {
-                console.log(`Solved: ${solution}`);
+            if (attempt.substr(0, 4) == '0000') {
+                console.log(`SOlved: ${solution}`);
                 return solution;
             }
             solution += 1;
         }
     }
-    // Add a new block to the chain if valid signature & proof of work is complete
     addBlock(transaction, senderPublicKey, signature) {
-        const verify = crypto.createVerify('SHA256');
-        verify.update(transaction.toString());
-        const isValid = verify.verify(senderPublicKey, signature);
+        const verifier = crypto.createVerify('SHA256');
+        verifier.update(transaction.toString());
+        const isValid = verifier.verify(senderPublicKey, signature);
         if (isValid) {
             const newBlock = new Block(this.lastBlock.hash, transaction);
             this.mine(newBlock.nonce);
@@ -190,31 +78,29 @@ class Chain {
         }
     }
 }
-// Singleton instance
 Chain.instance = new Chain();
-// Wallet gives a user a public/private keypair
 class Wallet {
     constructor() {
         const keypair = crypto.generateKeyPairSync('rsa', {
             modulusLength: 2048,
-            publicKeyEncoding: { type: 'spki', format: 'pem' },
-            privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+            publicKeyEncoding: { type: "spki", format: 'pem' },
+            privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         });
         this.privateKey = keypair.privateKey;
         this.publicKey = keypair.publicKey;
     }
     sendMoney(amount, payeePublicKey) {
         const transaction = new Transaction(amount, this.publicKey, payeePublicKey);
-        const sign = crypto.createSign('SHA256');
+        const sign = crypto.createSign("SHA256");
         sign.update(transaction.toString()).end();
         const signature = sign.sign(this.privateKey);
         Chain.instance.addBlock(transaction, this.publicKey, signature);
     }
 }
-// Example usage
 const satoshi = new Wallet();
 const bob = new Wallet();
 const alice = new Wallet();
+//const tony = new Wallet();
 satoshi.sendMoney(50, bob.publicKey);
 bob.sendMoney(23, alice.publicKey);
 alice.sendMoney(5, bob.publicKey);
